@@ -55,9 +55,21 @@ exec { 'install_ruby':
   require => Exec['install_rvm']
 }
 
-exec { "${as_vagrant} 'gem install bundler --no-rdoc --no-ri'":
+exec { "install_bundler":
+  command =>"${as_vagrant} 'gem install bundler --no-rdoc --no-ri'":
   creates => "${home}/.rvm/bin/bundle",
   require => Exec['install_ruby']
+}
+
+exec { "get_source_branch":
+  command => "${as_vagrant} git checkout -b source origin/source",
+  cwd => "/vagrant/justb.github.io",
+  require => "install_bundler"
+}  
+
+exec { "bundle install"
+  cwd => "/vagrant/justb.github.io"
+  require => "get_source_branch"
 }
 
 
